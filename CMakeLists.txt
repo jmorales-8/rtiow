@@ -13,6 +13,7 @@ add_executable(rtiow
 	Source/main.cpp
 	Source/vec3.hpp
 	Source/color.hpp
+	Source/ray.hpp
 
 )
 
