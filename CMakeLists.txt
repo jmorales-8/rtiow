@@ -11,7 +11,8 @@ set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 add_executable(rtiow 
 
 	Source/main.cpp
-
+	Source/vec3.hpp
+	Source/color.hpp
 
 )
 
