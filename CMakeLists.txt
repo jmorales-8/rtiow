@@ -14,6 +14,10 @@ add_executable(rtiow
 	Source/vec3.hpp
 	Source/color.hpp
 	Source/ray.hpp
+	Source/hittable.hpp
+	Source/sphere.hpp
+	Source/hittable_list.hpp
+	Source/rtweekend.h
 
 )
 
