@@ -15,6 +15,7 @@ add_executable(rtiow
 	Source/camera.hpp
 	Source/hittable.hpp
 	Source/hittable_list.hpp
+	Source/material.hpp
 	Source/ray.hpp
 	Source/sphere.hpp
 	Source/vec3.hpp
