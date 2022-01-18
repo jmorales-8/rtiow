@@ -10,9 +10,22 @@ set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 # add the executable
 add_executable(rtiow 
 
-	Source/main.cpp
-	Source/vec3.hpp
+	# Headers
 	Source/color.hpp
+	Source/camera.hpp
+	Source/hittable.hpp
+	Source/hittable_list.hpp
+	Source/material.hpp
+	Source/ray.hpp
+	Source/sphere.hpp
+	Source/vec3.hpp
+
+	# Utility
+	Source/rtweekend.hpp
+
+	# Main
+	Source/main.cpp
+	
 
 )
 
