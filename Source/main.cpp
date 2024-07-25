@@ -8,6 +8,8 @@
 
 #include <stdio.h>
 
+#include <stb_image.h>
+
 double hit_sphere(const point3& center, double radius, const ray& r)
 {
     vec3 oc = r.origin() - center;

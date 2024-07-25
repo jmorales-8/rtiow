@@ -7,6 +7,9 @@ project(rtiow)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} 
 	PROPERTY VS_STARTUP_PROJECT rtiow)
 
+# add in our dependencies
+find_package(Stb REQUIRED)
+
 # add the executable
 add_executable(rtiow 
 
@@ -29,3 +32,5 @@ add_executable(rtiow
 
 )
 
+# Link and/or include our dependencies
+target_include_directories(rtiow PRIVATE ${Stb_INCLUDE_DIR})
