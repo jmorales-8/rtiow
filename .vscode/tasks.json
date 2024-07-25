@@ -1,0 +1,23 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "run",
+            "detail": "Runs the program with the default .ppm use case",
+            "type": "shell",
+            "isBackground": true,
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": true
+            },
+            "command": "New-Item -Path . -Name 'output' -ItemType 'directory' | Out-Null || build\\win32-x64\\Debug\\Debug\\rtiow.exe > output\\$(Get-Date -f 'yyyy-mm-dd_HHmmss').ppm",
+            "problemMatcher": []
+        },
+    ]
+}
