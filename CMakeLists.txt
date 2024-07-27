@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 
+# set our C++ standard
+set(CMAKE_CXX_STANDARD 20)
+
 # set the project name
 project(rtiow)
 
@@ -9,6 +12,7 @@ set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 
 # add in our dependencies
 find_package(Stb REQUIRED)
+find_package(argparse CONFIG REQUIRED)
 
 # add the executable
 add_executable(rtiow
@@ -22,6 +26,8 @@ add_executable(rtiow
     Source/ray.hpp
     Source/sphere.hpp
     Source/vec3.hpp
+    Source/image_type.hpp
+    Source/image_exporter.hpp
 
     # Utility
     Source/rtweekend.hpp
@@ -33,3 +39,4 @@ add_executable(rtiow
 
 # Link and/or include our dependencies
 target_include_directories(rtiow PRIVATE ${Stb_INCLUDE_DIR})
+target_link_libraries(rtiow PRIVATE argparse::argparse)

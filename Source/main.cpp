@@ -1,3 +1,4 @@
+// Local includes
 #include "rtweekend.hpp"
 
 #include "color.hpp"
@@ -5,10 +6,13 @@
 #include "sphere.hpp"
 #include "camera.hpp"
 #include "material.hpp"
+#include "image_exporter.hpp"
 
+// STL includes
 #include <stdio.h>
 
-#include <stb_image.h>
+// External includes
+#include <argparse/argparse.hpp>
 
 double hit_sphere(const point3 &center, double radius, const ray &r)
 {
@@ -114,6 +118,62 @@ hittable_list random_scene()
 
 int main(int argc, char **argv)
 {
+    argparse::ArgumentParser argparser("rtiow", "0.1");
+
+    argparser.add_argument("--image-type", "-t")
+        .default_value(std::string{"png"})
+        .choices("png", "jpg", "jpeg", "bmp", "tga", "hdr", "ppm")
+        .nargs(1)
+        .help("The type of image to output [choices: png, jpg, jpeg, bmp, tga, hdr, ppm]")
+        .metavar("TYPE");
+
+    argparser.add_argument("--filepath", "-f")
+        .help("The file location to output to")
+        .metavar("PATH")
+        .required();
+
+    try
+    {
+        argparser.parse_args(argc, argv);
+    }
+    catch (const std::exception &err)
+    {
+        std::cerr << err.what() << std::endl;
+        std::cerr << argparser;
+        std::exit(1);
+    }
+
+    std::string filepath = argparser.get<std::string>("--filepath");
+    std::string image_type_string = argparser.get("--image-type");
+    image_type image_type_selection = image_type::Unknown;
+
+    if (image_type_string.compare("png") == 0)
+    {
+        image_type_selection = image_type::PNG;
+    }
+    else if (image_type_string.compare("jpg") == 0 || image_type_string.compare("jpeg") == 0)
+    {
+        image_type_selection = image_type::JPG;
+    }
+    else if (image_type_string.compare("bmp") == 0)
+    {
+        image_type_selection = image_type::BMP;
+    }
+    else if (image_type_string.compare("tga") == 0)
+    {
+        image_type_selection = image_type::TGA;
+    }
+    else if (image_type_string.compare("hdr") == 0)
+    {
+        image_type_selection = image_type::HDR;
+    }
+    else if (image_type_string.compare("ppm") == 0)
+    {
+        image_type_selection = image_type::PPM;
+    }
+
+    //std::cout << "program test ended\n";
+    //std::exit(0);
 
     // Image
 
@@ -169,7 +229,9 @@ int main(int argc, char **argv)
 
     // Render
 
-    printf_s("P3\n%d %d\n255\n", image_width, image_height);
+    // Image data as R,G,B vec3, no alpha.
+
+    std::vector<color3> image_data{};
 
     for (int j = image_height - 1; j >= 0; j--)
     {
@@ -186,11 +248,14 @@ int main(int argc, char **argv)
                 ray r = cam.get_ray(u, v);
                 pixel_color += ray_color(r, world, max_depth);
             }
-            write_color(std::cout, pixel_color, samples_per_pixel);
+            image_data.push_back(pixel_color);
         }
     }
 
-    fprintf_s(stderr, "\nDone.\n");
+    std::cerr << "\nExporting to file...\n";
+    image_exporter exporter;
+    exporter.export_data(filepath, image_type_selection, image_data, image_width, image_height, samples_per_pixel);
+    std::cerr << "Done!\n";
 
     return 0;
 }

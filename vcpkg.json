@@ -1,5 +1,6 @@
 {
-    "dependencies": [
-        "stb"
-    ]
+  "dependencies": [
+    "stb",
+    "argparse"
+  ]
 }
