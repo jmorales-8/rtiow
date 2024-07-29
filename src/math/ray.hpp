@@ -3,25 +3,28 @@
 
 #include "vec3.hpp"
 
-class ray
+namespace jmrtiow::math
 {
-public:
-    point3 orig;
-    vec3 dir;
-
-    ray() {}
-    ray(const point3 &origin, const vec3 &direction)
-        : orig(origin), dir(direction)
+    class ray
     {
-    }
+    public:
+        point3 orig;
+        vec3 dir;
 
-    point3 origin() const { return orig; }
-    vec3 direction() const { return dir; }
+        ray() {}
+        ray(const point3 &origin, const vec3 &direction)
+            : orig(origin), dir(direction)
+        {
+        }
 
-    point3 at(double t) const
-    {
-        return orig + t * dir;
-    }
-};
+        point3 origin() const { return orig; }
+        vec3 direction() const { return dir; }
+
+        point3 at(double t) const
+        {
+            return orig + t * dir;
+        }
+    };
+}
 
 #endif // MATH_RAY_HPP
