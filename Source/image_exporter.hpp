@@ -21,6 +21,13 @@ namespace
         uint8_t g;
         uint8_t b;
     };
+
+    struct color3float
+    {
+        float r;
+        float g;
+        float b;
+    };
 };
 
 class image_exporter
@@ -39,6 +46,7 @@ private:
     bool export_webp(std::ostream &out, image_type file_type, const std::vector<color3>& image_data, int image_width, int image_height);
 
     std::vector<color3byte> convert_to_bytes(const std::vector<color3>& image_data);
+    std::vector<color3float> prime_for_hdr(const std::vector<color3>& image_data);
 };
 
 bool image_exporter::export_data(std::ostream &out, image_type file_type, const std::vector<color3>& image_data, int image_width, int image_height)
@@ -149,7 +157,18 @@ bool image_exporter::export_tga(std::ostream &out, image_type file_type, const s
 
 bool image_exporter::export_hdr(std::ostream &out, image_type file_type, const std::vector<color3> &image_data, int image_width, int image_height)
 {
-    throw not_implemented(__PRETTY_FUNCTION__);
+    // First we change the doubles to bytes from 0-255.
+    auto pixel_data = prime_for_hdr(image_data);
+
+    auto writer = [](void *context, void *data, int size)
+    {
+        auto out = static_cast<std::ostream*>(context);
+        (*out).write(static_cast<char*>(data), size);
+    };
+
+    int return_code = stbi_write_hdr_to_func(writer, &out, image_width, image_height, 3, reinterpret_cast<float*>(pixel_data.data()));
+
+    return return_code != 0;
 }
 
 bool image_exporter::export_ppm(std::ostream &out, image_type file_type, const std::vector<color3> &image_data, int image_width, int image_height)
@@ -191,6 +210,25 @@ inline std::vector<color3byte> image_exporter::convert_to_bytes(const std::vecto
     }
 
     return bytes;
+}
+
+inline std::vector<color3float> image_exporter::prime_for_hdr(const std::vector<color3> &image_data)
+{
+    // Convert double (gamma corrected) pixel data to float (non gamma corrected)
+    std::vector<color3float> floats{};
+
+    for (auto &&pixel : image_data)
+    {
+        color3float c;
+
+        c.r = pixel.r * pixel.r;
+        c.g = pixel.g * pixel.g;
+        c.b = pixel.b * pixel.b;
+
+        floats.push_back(c);
+    }
+
+    return floats;
 }
 
 #endif // IMAGE_EXPORTER_HPP
