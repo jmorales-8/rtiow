@@ -9,7 +9,8 @@ enum class image_type
     BMP,
     TGA,
     HDR,
-    PPM
+    PPM,
+    WEBP
 };
 
 #endif // IMAGE_TYPE_HPP
