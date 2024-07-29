@@ -1,5 +1,5 @@
-#ifndef RAY_HPP
-#define RAY_HPP
+#ifndef MATH_RAY_HPP
+#define MATH_RAY_HPP
 
 #include "vec3.hpp"
 
@@ -24,4 +24,4 @@ public:
     }
 };
 
-#endif
+#endif // MATH_RAY_HPP

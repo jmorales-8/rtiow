@@ -49,7 +49,7 @@ inline double clamp(double x, double min, double max)
 
 // Common Headers
 
-#include "ray.hpp"
-#include "vec3.hpp"
+#include "math/ray.hpp"
+#include "math/vec3.hpp"
 
-#endif
+#endif // RTWEEKEND_HPP

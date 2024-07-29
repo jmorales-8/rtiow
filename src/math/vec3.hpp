@@ -1,5 +1,5 @@
-#ifndef VEC3_HPP
-#define VEC3_HPP
+#ifndef MATH_VEC3_HPP
+#define MATH_VEC3_HPP
 
 #include <cmath>
 #include <iostream>
@@ -199,4 +199,4 @@ vec3 random_in_unit_disk()
     }
 }
 
-#endif
+#endif // MATH_VEC3_HPP

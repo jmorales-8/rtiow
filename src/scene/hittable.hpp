@@ -1,7 +1,7 @@
-#ifndef HITTABLE_HPP
-#define HITTABLE_HPP
+#ifndef SCENE_HITTABLE_HPP
+#define SCENE_HITTABLE_HPP
 
-#include "ray.hpp"
+#include "../math/ray.hpp"
 
 class material;
 
@@ -26,4 +26,4 @@ public:
     virtual bool hit(const ray &r, double t_min, double t_max, hit_record &rec) const = 0;
 };
 
-#endif
+#endif // SCENE_HITTABLE_HPP

@@ -1,5 +1,5 @@
-#ifndef HITTABLE_LIST_HPP
-#define HITTABLE_LIST_HPP
+#ifndef SCENE_HITTABLE_LIST_HPP
+#define SCENE_HITTABLE_LIST_HPP
 
 #include "hittable.hpp"
 
@@ -44,4 +44,4 @@ bool hittable_list::hit(const ray &r, double t_min, double t_max, hit_record &re
     return hit_anything;
 }
 
-#endif
+#endif // SCENE_HITTABLE_LIST_HPP

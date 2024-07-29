@@ -1,14 +1,13 @@
-#ifndef IMAGE_EXPORTER_HPP
-#define IMAGE_EXPORTER_HPP
+#ifndef IMAGE_IMAGE_EXPORTER_HPP
+#define IMAGE_IMAGE_EXPORTER_HPP
 
 #include <vector>
 #include <fstream>
 #include <format>
 #include <stdint.h>
 
-#include "color.hpp"
 #include "image_type.hpp"
-#include "exceptions/not_implemented.hpp"
+#include "../exceptions/not_implemented.hpp"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
@@ -243,4 +242,4 @@ inline std::vector<color3float> image_exporter::prime_for_hdr(const std::vector<
     return floats;
 }
 
-#endif // IMAGE_EXPORTER_HPP
+#endif // IMAGE_IMAGE_EXPORTER_HPP

@@ -17,25 +17,8 @@ find_package(argparse CONFIG REQUIRED)
 
 # add the executable
 add_executable(rtiow
-
-    # Headers
-    Source/color.hpp
-    Source/camera.hpp
-    Source/hittable.hpp
-    Source/hittable_list.hpp
-    Source/material.hpp
-    Source/ray.hpp
-    Source/sphere.hpp
-    Source/vec3.hpp
-    Source/image_type.hpp
-    Source/image_exporter.hpp
-
-    # Utility
-    Source/rtweekend.hpp
-
     # Main
-    Source/main.cpp
-
+    src/main.cpp
 )
 
 # Link and/or include our dependencies

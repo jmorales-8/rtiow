@@ -1,8 +1,8 @@
-#ifndef SPHERE_HPP
-#define SPHERE_HPP
+#ifndef SCENE_SPHERE_HPP
+#define SCENE_SPHERE_HPP
 
 #include "hittable.hpp"
-#include "vec3.hpp"
+#include "../math/vec3.hpp"
 
 class sphere : public hittable
 {
@@ -49,4 +49,4 @@ bool sphere::hit(const ray &r, double t_min, double t_max, hit_record &rec) cons
     return true;
 }
 
-#endif
+#endif // SCENE_SPHERE_HPP

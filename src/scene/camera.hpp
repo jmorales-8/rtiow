@@ -1,7 +1,7 @@
-#ifndef CAMERA_HPP
-#define CAMERA_HPP
+#ifndef SCENE_CAMERA_HPP
+#define SCENE_CAMERA_HPP
 
-#include "rtweekend.hpp"
+#include "../rtweekend.hpp"
 
 class camera
 {
@@ -50,4 +50,4 @@ private:
     vec3 u, v, w;
     double lens_radius;
 };
-#endif
+#endif // SCENE_CAMERA_HPP

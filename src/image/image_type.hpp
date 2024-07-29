@@ -1,5 +1,5 @@
-#ifndef IMAGE_TYPE_HPP
-#define IMAGE_TYPE_HPP
+#ifndef IMAGE_IMAGE_TYPE_HPP
+#define IMAGE_IMAGE_TYPE_HPP
 
 enum class image_type
 {
@@ -13,4 +13,4 @@ enum class image_type
     WEBP
 };
 
-#endif // IMAGE_TYPE_HPP
+#endif // IMAGE_IMAGE_TYPE_HPP

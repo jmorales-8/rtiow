@@ -1,12 +1,11 @@
 // Local includes
 #include "rtweekend.hpp"
 
-#include "color.hpp"
-#include "hittable_list.hpp"
-#include "sphere.hpp"
-#include "camera.hpp"
-#include "material.hpp"
-#include "image_exporter.hpp"
+#include "scene/hittable_list.hpp"
+#include "scene/sphere.hpp"
+#include "scene/camera.hpp"
+#include "scene/material.hpp"
+#include "image/image_exporter.hpp"
 
 // STL includes
 #include <stdio.h>

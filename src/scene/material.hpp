@@ -1,7 +1,7 @@
-#ifndef MATERIAL_HPP
-#define MATERIAL_HPP
+#ifndef SCENE_MATERIAL_HPP
+#define SCENE_MATERIAL_HPP
 
-#include "rtweekend.hpp"
+#include "../rtweekend.hpp"
 
 struct hit_record;
 
@@ -94,4 +94,4 @@ private:
     }
 };
 
-#endif
+#endif // SCENE_MATERIAL_HPP
