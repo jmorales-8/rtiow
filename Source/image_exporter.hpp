@@ -139,7 +139,10 @@ bool image_exporter::export_ppm(std::ostream &out, image_type file_type, const s
     for (auto &&pixel : pixel_data)
     {
         // Write the translated [0,255] value of each color component.
-        out << pixel.r << ' ' << pixel.g << ' ' << pixel.b << '\n';
+        // Cast to int for the actual data to be inserted into the file instead of utf8 characters.
+        out << static_cast<int>(pixel.r) << ' '
+        << static_cast<int>(pixel.g) << ' '
+        << static_cast<int>(pixel.b) << '\n';
     }
 
     return true;
@@ -158,9 +161,9 @@ inline std::vector<color3byte> image_exporter::convert_to_bytes(const std::vecto
     {
         color3byte c;
 
-        c.r = static_cast<int>(256 * clamp(pixel.r, 0.0, 0.999));
-        c.g = static_cast<int>(256 * clamp(pixel.g, 0.0, 0.999));
-        c.b = static_cast<int>(256 * clamp(pixel.b, 0.0, 0.999));
+        c.r = static_cast<uint8_t>(256 * clamp(pixel.r, 0.0, 0.999));
+        c.g = static_cast<uint8_t>(256 * clamp(pixel.g, 0.0, 0.999));
+        c.b = static_cast<uint8_t>(256 * clamp(pixel.b, 0.0, 0.999));
 
         bytes.push_back(c);
     }
