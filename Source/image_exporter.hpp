@@ -133,7 +133,18 @@ bool image_exporter::export_bmp(std::ostream &out, image_type file_type, const s
 
 bool image_exporter::export_tga(std::ostream &out, image_type file_type, const std::vector<color3> &image_data, int image_width, int image_height)
 {
-    throw not_implemented(__PRETTY_FUNCTION__);
+    // First we change the doubles to bytes from 0-255.
+    auto pixel_data = convert_to_bytes(image_data);
+
+    auto writer = [](void *context, void *data, int size)
+    {
+        auto out = static_cast<std::ostream*>(context);
+        (*out).write(static_cast<char*>(data), size);
+    };
+
+    int return_code = stbi_write_tga_to_func(writer, &out, image_width, image_height, 3, pixel_data.data());
+
+    return return_code != 0;
 }
 
 bool image_exporter::export_hdr(std::ostream &out, image_type file_type, const std::vector<color3> &image_data, int image_width, int image_height)
