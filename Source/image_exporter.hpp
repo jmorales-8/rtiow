@@ -4,9 +4,24 @@
 #include <vector>
 #include <fstream>
 #include <format>
+#include <stdint.h>
+
 #include "color.hpp"
 #include "image_type.hpp"
 #include "exceptions/not_implemented.hpp"
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
+
+namespace
+{
+    struct color3byte
+    {
+        uint8_t r;
+        uint8_t g;
+        uint8_t b;
+    };
+};
 
 class image_exporter
 {
@@ -22,6 +37,8 @@ private:
     bool export_hdr(std::ostream &out, image_type file_type, const std::vector<color3>& image_data, int image_width, int image_height);
     bool export_ppm(std::ostream &out, image_type file_type, const std::vector<color3>& image_data, int image_width, int image_height);
     bool export_webp(std::ostream &out, image_type file_type, const std::vector<color3>& image_data, int image_width, int image_height);
+
+    std::vector<color3byte> convert_to_bytes(const std::vector<color3>& image_data);
 };
 
 bool image_exporter::export_data(std::ostream &out, image_type file_type, const std::vector<color3>& image_data, int image_width, int image_height)
@@ -68,7 +85,18 @@ bool image_exporter::export_data(std::string filepath, image_type file_type, con
 
 bool image_exporter::export_png(std::ostream &out, image_type file_type, const std::vector<color3> &image_data, int image_width, int image_height)
 {
-    throw not_implemented(__PRETTY_FUNCTION__);
+    // First we change the doubles to bytes from 0-255.
+    auto pixel_data = convert_to_bytes(image_data);
+
+    auto png_writer = [](void *context, void *data, int size)
+    {
+        auto out = static_cast<std::ostream*>(context);
+        (*out).write(static_cast<char*>(data), size);
+    };
+
+    int return_code = stbi_write_png_to_func(png_writer, &out, image_width, image_height, 3, pixel_data.data(), 0);
+
+    return return_code != 0;
 }
 
 bool image_exporter::export_jpg(std::ostream &out, image_type file_type, const std::vector<color3> &image_data, int image_width, int image_height)
@@ -95,16 +123,12 @@ bool image_exporter::export_ppm(std::ostream &out, image_type file_type, const s
 {
     out << std::format("P3\n{} {}\n255\n", image_width, image_height);
 
-    for (auto &&pixel : image_data)
-    {
-        auto r = pixel.r;
-        auto g = pixel.g;
-        auto b = pixel.b;
+    auto pixel_data = convert_to_bytes(image_data);
 
+    for (auto &&pixel : pixel_data)
+    {
         // Write the translated [0,255] value of each color component.
-        out << static_cast<int>(256 * clamp(r, 0.0, 0.999)) << ' '
-        << static_cast<int>(256 * clamp(g, 0.0, 0.999)) << ' '
-        << static_cast<int>(256 * clamp(b, 0.0, 0.999)) << '\n';
+        out << pixel.r << ' ' << pixel.g << ' ' << pixel.b << '\n';
     }
 
     return true;
@@ -113,6 +137,24 @@ bool image_exporter::export_ppm(std::ostream &out, image_type file_type, const s
 bool image_exporter::export_webp(std::ostream &out, image_type file_type, const std::vector<color3> &image_data, int image_width, int image_height)
 {
     throw not_implemented(__PRETTY_FUNCTION__);
+}
+
+inline std::vector<color3byte> image_exporter::convert_to_bytes(const std::vector<color3> &image_data)
+{
+    std::vector<color3byte> bytes{};
+
+    for (auto &&pixel : image_data)
+    {
+        color3byte c;
+
+        c.r = static_cast<int>(256 * clamp(pixel.r, 0.0, 0.999));
+        c.g = static_cast<int>(256 * clamp(pixel.g, 0.0, 0.999));
+        c.b = static_cast<int>(256 * clamp(pixel.b, 0.0, 0.999));
+
+        bytes.push_back(c);
+    }
+
+    return bytes;
 }
 
 #endif // IMAGE_EXPORTER_HPP
