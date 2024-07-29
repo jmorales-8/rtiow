@@ -235,7 +235,7 @@ int main(int argc, char **argv)
 
     for (int j = image_height - 1; j >= 0; j--)
     {
-        fprintf_s(stderr, "\rScanlines remaining: %d - %.1f%%    ", j, 100.0 - (100.0f * (double(j) / (image_height - 1))));
+        std::cerr << std::format("\rScanlines remaining: {} - {:.1f}%    ", j, 100.0 - (100.0f * (double(j) / (image_height - 1))));
         fflush(stderr);
 
         for (int i = 0; i < image_width; i++)
