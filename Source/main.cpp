@@ -248,13 +248,20 @@ int main(int argc, char **argv)
                 ray r = cam.get_ray(u, v);
                 pixel_color += ray_color(r, world, max_depth);
             }
+
+            // Normalize the color samples and gamma correct before passing off to pixel data.
+            pixel_color *= (1.0f / samples_per_pixel);
+            pixel_color.r = sqrt(pixel_color.r);
+            pixel_color.g = sqrt(pixel_color.g);
+            pixel_color.b = sqrt(pixel_color.b);
+
             image_data.push_back(pixel_color);
         }
     }
 
     std::cerr << "\nExporting to file...\n";
     image_exporter exporter;
-    exporter.export_data(filepath, image_type_selection, image_data, image_width, image_height, samples_per_pixel);
+    exporter.export_data(filepath, image_type_selection, image_data, image_width, image_height);
     std::cerr << "Done!\n";
 
     return 0;
