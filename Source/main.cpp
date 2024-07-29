@@ -122,9 +122,9 @@ int main(int argc, char **argv)
 
     argparser.add_argument("--image-type", "-t")
         .default_value(std::string{"png"})
-        .choices("png", "jpg", "jpeg", "bmp", "tga", "hdr", "ppm")
+        .choices("png", "jpg", "jpeg", "bmp", "tga", "hdr", "ppm", "webp")
         .nargs(1)
-        .help("The type of image to output [choices: png, jpg, jpeg, bmp, tga, hdr, ppm]")
+        .help("The type of image to output [choices: png, jpg, jpeg, bmp, tga, hdr, ppm, webp]")
         .metavar("TYPE");
 
     argparser.add_argument("--filepath", "-f")
@@ -171,9 +171,10 @@ int main(int argc, char **argv)
     {
         image_type_selection = image_type::PPM;
     }
-
-    //std::cout << "program test ended\n";
-    //std::exit(0);
+    else if (image_type_string.compare("webp") == 0)
+    {
+        image_type_selection = image_type::WEBP;
+    }
 
     // Image
 

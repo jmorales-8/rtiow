@@ -13,6 +13,8 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
 
+#include <webp/encode.h>
+
 namespace
 {
     struct color3byte
@@ -191,7 +193,17 @@ bool image_exporter::export_ppm(std::ostream &out, image_type file_type, const s
 
 bool image_exporter::export_webp(std::ostream &out, image_type file_type, const std::vector<color3> &image_data, int image_width, int image_height)
 {
-    throw not_implemented(__PRETTY_FUNCTION__);
+    // First we change the doubles to bytes from 0-255.
+    auto pixel_data = convert_to_bytes(image_data);
+
+    uint8_t* output;
+    int size = WebPEncodeLosslessRGB(reinterpret_cast<uint8_t*>(pixel_data.data()), image_width, image_height, image_width * 3, &output);
+
+    out.write(reinterpret_cast<char*>(output), size);
+
+    WebPFree(output);
+
+    return size != 0;
 }
 
 inline std::vector<color3byte> image_exporter::convert_to_bytes(const std::vector<color3> &image_data)
