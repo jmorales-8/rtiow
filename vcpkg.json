@@ -1,7 +1,8 @@
 {
-  "dependencies": [
-    "argparse",
-    "stb",
-    "libwebp"
-  ]
+    "dependencies": [
+        "argparse",
+        "stb",
+        "libwebp",
+        "sdl2"
+    ]
 }

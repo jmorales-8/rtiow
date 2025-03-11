@@ -2,6 +2,7 @@
 #define SCENE_HITTABLE_HPP
 
 #include "../math/ray.hpp"
+// #include "material.hpp"
 
 namespace jmrtiow::scene
 {

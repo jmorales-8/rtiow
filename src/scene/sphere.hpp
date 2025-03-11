@@ -50,6 +50,23 @@ namespace jmrtiow::scene
 
         return true;
     }
+
+    double hit_sphere(const math::point3 &center, double radius, const math::ray &r)
+    {
+        math::vec3 oc = r.origin() - center;
+        auto a = r.direction().length_squared();
+        auto half_b = math::dot(oc, r.direction());
+        auto c = oc.length_squared() - radius * radius;
+        auto discriminiant = half_b * half_b - 4 * a * c;
+        if (discriminiant < 0)
+        {
+            return -1.0;
+        }
+        else
+        {
+            return (-half_b - sqrt(discriminiant)) / (2.0 * a);
+        }
+    }
 }
 
 #endif // SCENE_SPHERE_HPP

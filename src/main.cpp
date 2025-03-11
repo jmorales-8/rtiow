@@ -1,123 +1,20 @@
 // Local includes
 #include "rtweekend.hpp"
 
+#include "scene/material.hpp"
 #include "scene/hittable_list.hpp"
 #include "scene/sphere.hpp"
 #include "scene/camera.hpp"
-#include "scene/material.hpp"
 #include "image/image_exporter.hpp"
+
+// ImGui includes
+#include "imgui.h"
 
 // STL includes
 #include <stdio.h>
 
 // External includes
 #include <argparse/argparse.hpp>
-
-namespace jmrtiow
-{
-    double hit_sphere(const math::point3 &center, double radius, const math::ray &r)
-    {
-        math::vec3 oc = r.origin() - center;
-        auto a = r.direction().length_squared();
-        auto half_b = math::dot(oc, r.direction());
-        auto c = oc.length_squared() - radius * radius;
-        auto discriminiant = half_b * half_b - 4 * a * c;
-        if (discriminiant < 0)
-        {
-            return -1.0;
-        }
-        else
-        {
-            return (-half_b - sqrt(discriminiant)) / (2.0 * a);
-        }
-    }
-
-    math::color3 ray_color(const math::ray &r, const scene::hittable &world, int depth)
-    {
-        scene::hit_record rec;
-
-        // If we've exceeded the math::ray bounce limit, no more light is gathered.
-        if (depth <= 0)
-            return math::color3(0, 0, 0);
-
-        if (world.hit(r, 0.001, infinity, rec))
-        {
-
-#if 0   // Alternate diffuse form
-        math::point3 target = rec.p + random_in_hemisphere(rec.normal);
-#elif 0 // True scene::lambertian reflection
-            math::point3 target = rec.p + rec.normal + random_unit_vector();
-#elif 0 // Random math::ray reflection
-            math::point3 target = rec.p + rec.normal + random_in_unit_sphere();
-#endif
-            math::ray scattered;
-            math::color3 attenuation;
-            if (rec.mat_ptr->scatter(r, rec, attenuation, scattered))
-                return attenuation * ray_color(scattered, world, depth - 1);
-            return math::color3(0, 0, 0);
-        }
-
-        math::vec3 unit_direction = unit_vector(r.direction());
-        auto t = 0.5 * (unit_direction.y + 1.0);
-        return (1.0 - t) * math::color3(1.0, 1.0, 1.0) + t * math::color3(0.5, 0.7, 1.0);
-    }
-
-    scene::hittable_list random_scene()
-    {
-        scene::hittable_list world;
-
-        auto ground_material = make_shared<scene::lambertian>(math::color3(0.5, 0.5, 0.5));
-        world.add(make_shared<scene::sphere>(math::point3(0, -1000, 0), 1000, ground_material));
-
-        for (int a = -11; a < 11; a++)
-        {
-            for (int b = -11; b < 11; b++)
-            {
-                auto choose_mat = random_double();
-                math::point3 center(a + 0.9 * random_double(), 0.2, b + 0.9 * random_double());
-
-                if ((center - math::point3(4, 0.2, 0)).length() > 0.9)
-                {
-                    shared_ptr<scene::material> sphere_material;
-
-                    if (choose_mat < 0.8)
-                    {
-                        // diffuse
-                        auto albedo = math::color3::random() * math::color3::random();
-                        sphere_material = make_shared<scene::lambertian>(albedo);
-                        world.add(make_shared<scene::sphere>(center, 0.2, sphere_material));
-                    }
-                    else if (choose_mat < 0.95)
-                    {
-                        // scene::metal
-                        auto albedo = math::color3::random(0.5, 1);
-                        auto fuzz = random_double(0, 0.5);
-                        sphere_material = make_shared<scene::metal>(albedo, fuzz);
-                        world.add(make_shared<scene::sphere>(center, 0.2, sphere_material));
-                    }
-                    else
-                    {
-                        // glass
-                        sphere_material = make_shared<scene::dielectric>(1.5);
-                        world.add(make_shared<scene::sphere>(center, 0.2, sphere_material));
-                    }
-                }
-            }
-        }
-
-        auto material1 = make_shared<scene::dielectric>(1.5);
-        world.add(make_shared<scene::sphere>(math::point3(0, 1, 0), 1.0, material1));
-
-        auto material2 = make_shared<scene::lambertian>(math::color3(0.4, 0.2, 0.1));
-        world.add(make_shared<scene::sphere>(math::point3(-4, 1, 0), 1.0, material2));
-
-        auto material3 = make_shared<scene::metal>(math::color3(0.7, 0.6, 0.5), 0.0);
-        world.add(make_shared<scene::sphere>(math::point3(4, 1, 0), 1.0, material3));
-
-        return world;
-    }
-
-}
 
 int main(int argc, char **argv)
 {
@@ -191,7 +88,7 @@ int main(int argc, char **argv)
 
     // World
 
-    auto world = random_scene();
+    auto world = jmrtiow::scene::random_scene();
     // hittable_list world;
 
 #if 0   // First scene (three spheres and a green ground
@@ -250,7 +147,7 @@ int main(int argc, char **argv)
                 auto u = (i + random_double()) / (image_width - 1);
                 auto v = (j + random_double()) / (image_height - 1);
                 math::ray r = cam.get_ray(u, v);
-                pixel_color += ray_color(r, world, max_depth);
+                pixel_color += jmrtiow::scene::ray_color(r, world, max_depth);
             }
 
             // Normalize the color samples and gamma correct before passing off to pixel data.

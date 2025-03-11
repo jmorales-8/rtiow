@@ -19,9 +19,32 @@ find_package(argparse CONFIG REQUIRED)
 add_executable(rtiow
     # Main
     src/main.cpp
+
+    # Dear ImGui
+    deps/imgui/imgui.cpp
+    deps/imgui/imgui_demo.cpp
+    deps/imgui/imgui_draw.cpp
+    deps/imgui/imgui_tables.cpp
+    deps/imgui/imgui_widgets.cpp
+    deps/imgui/backends/imgui_impl_sdl2.cpp
+    deps/imgui/backends/imgui_impl_sdlrenderer2.cpp
 )
 
 # Link and/or include our dependencies
 target_include_directories(rtiow PRIVATE ${Stb_INCLUDE_DIR})
 target_link_libraries(rtiow PRIVATE WebP::webp)
 target_link_libraries(rtiow PRIVATE argparse::argparse)
+
+# SDL2
+find_package(SDL2 CONFIG REQUIRED)
+target_link_libraries(rtiow
+    PRIVATE
+    $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+    $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+)
+
+# Dear ImGui
+target_include_directories(rtiow PRIVATE
+    deps/imgui
+    deps/imgui/backends
+)
