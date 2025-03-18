@@ -25,6 +25,14 @@ namespace jmrtiow::image
             uint8_t b;
         };
 
+        struct color4byte
+        {
+            uint8_t r;
+            uint8_t g;
+            uint8_t b;
+            uint8_t a;
+        };
+
         struct color3float
         {
             float r;
@@ -32,6 +40,8 @@ namespace jmrtiow::image
             float b;
         };
     };
+
+    std::vector<color3byte> convert_to_bytes(const std::vector<math::color3> &image_data);
 
     class image_exporter
     {
@@ -48,7 +58,7 @@ namespace jmrtiow::image
         bool export_ppm(std::ostream &out, image_type file_type, const std::vector<math::color3> &image_data, int image_width, int image_height);
         bool export_webp(std::ostream &out, image_type file_type, const std::vector<math::color3> &image_data, int image_width, int image_height);
 
-        std::vector<color3byte> convert_to_bytes(const std::vector<math::color3> &image_data);
+        // std::vector<color3byte> convert_to_bytes(const std::vector<math::color3> &image_data);
         std::vector<color3float> prime_for_hdr(const std::vector<math::color3> &image_data);
     };
 
@@ -207,7 +217,7 @@ namespace jmrtiow::image
         return size != 0;
     }
 
-    inline std::vector<color3byte> image_exporter::convert_to_bytes(const std::vector<math::color3> &image_data)
+    inline std::vector<color3byte> convert_to_bytes(const std::vector<math::color3> &image_data)
     {
         std::vector<color3byte> bytes{};
 
@@ -218,6 +228,25 @@ namespace jmrtiow::image
             c.r = static_cast<uint8_t>(256 * clamp(pixel.r, 0.0, 0.999));
             c.g = static_cast<uint8_t>(256 * clamp(pixel.g, 0.0, 0.999));
             c.b = static_cast<uint8_t>(256 * clamp(pixel.b, 0.0, 0.999));
+
+            bytes.push_back(c);
+        }
+
+        return bytes;
+    }
+
+    inline std::vector<color4byte> convert_to_bytes_rgba(const std::vector<math::color3> &image_data)
+    {
+        std::vector<color4byte> bytes{};
+
+        for (auto &&pixel : image_data)
+        {
+            color4byte c;
+
+            c.r = static_cast<uint8_t>(256 * clamp(pixel.r, 0.0, 0.999));
+            c.g = static_cast<uint8_t>(256 * clamp(pixel.g, 0.0, 0.999));
+            c.b = static_cast<uint8_t>(256 * clamp(pixel.b, 0.0, 0.999));
+            c.a = 255;
 
             bytes.push_back(c);
         }

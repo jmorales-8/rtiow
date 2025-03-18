@@ -19,3 +19,6 @@ bld/
 # VS Code specific files
 .vscode/settings.json
 .vscode/namespace.code-snippets
+
+# Dear ImGui config
+**/imgui.ini

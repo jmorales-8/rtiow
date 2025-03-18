@@ -16,7 +16,7 @@
                 "showReuseMessage": true,
                 "clear": true
             },
-            "command": "New-Item -Path . -Name 'output' -ItemType 'directory' | Out-Null || build\\win32-x64\\Debug\\Debug\\rtiow.exe > output\\$(Get-Date -f 'yyyy-mm-dd_HHmmss').ppm",
+            "command": "build/rtiow",
             "problemMatcher": []
         },
     ]

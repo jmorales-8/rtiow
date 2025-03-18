@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 
+# export compile_commands.json
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
+
 # set our C++ standard
 set(CMAKE_CXX_STANDARD 20)
 
@@ -48,3 +51,8 @@ target_include_directories(rtiow PRIVATE
     deps/imgui
     deps/imgui/backends
 )
+
+# debug
+message("DEBUG: CMake Build Type: ${CMAKE_BUILD_TYPE}")
+message("DEBUG: STB Include Dir: ${Stb_INCLUDE_DIR}")
+message("DEBUG: Compile commands: ${CMAKE_EXPORT_COMPILE_COMMANDS}")
