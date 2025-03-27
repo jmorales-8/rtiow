@@ -6,6 +6,7 @@
 #include "scene/sphere.hpp"
 #include "scene/camera.hpp"
 #include "image/image_exporter.hpp"
+#include "graphics/cpu_renderer.hpp"
 
 // ImGui includes
 #include "imgui.h"
@@ -41,11 +42,11 @@ int main(int argc, char** argv)
 
     // Image
 
-    const auto aspect_ratio = 3.0 / 2.0;
-    const int image_width = 720;
-    const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 1;
-    const int max_depth = 25;
+    const double aspect_ratio = 3.0 / 2.0;
+    const uint32_t image_width = 720;
+    const uint32_t image_height = static_cast<int>(image_width / aspect_ratio);
+    const uint32_t samples_per_pixel = 1;
+    const uint32_t max_depth = 25;
 
     // World
 
@@ -69,15 +70,38 @@ int main(int argc, char** argv)
 
     // Image data as R,G,B math::vec3, no alpha.
 
-    std::vector<math::color3> image_data {};
-    std::vector<math::color3>* image_data_reference = &image_data;
-    image_data.resize(image_height * image_width, { 0.0, 0.0, 0.0 });
+    math::color3* image_data = new math::color3[image_height * image_width];
+    math::color3** image_data_reference = &image_data;
 
-    bool keep_working = true;
-    bool* keep_working_reference = &keep_working;
+    for (size_t i = 0; i < image_height * image_width; i++)
+    {
+        image_data[i] = { 0.0, 0.0, 0.0 };
+    }
+
+
+    bool pause = false;
     float frame = 0;
 
-    uint32_t threads_supported = std::thread::hardware_concurrency() * 0.75f;
+    // Create rt rendering context and renderer.
+    // TODO: Enable switching of multiple renderers.
+    graphics::renderer_context rt_context {
+        .width = image_width,
+        .height = image_height,
+        .camera = &cam,
+        .scene = &world,
+        .max_depth = max_depth,
+        .samples_per_pixel = samples_per_pixel,
+        .pause = &pause,
+        .blend_callback = [frame](const math::color3& a, const math::color3& b)->math::color3
+        {
+            uint32_t n = frame + 1;
+            return a * (n - 1) / n + b / n;
+        },
+    };
+
+    graphics::cpu_renderer rt_renderer {};
+
+    uint32_t threads_supported = 1;//std::thread::hardware_concurrency() * 0.75f;
     std::vector<std::thread> work_threads {};
     work_threads.reserve(threads_supported);
     for (size_t i = 1; i < threads_supported + 1; i++)
@@ -97,48 +121,12 @@ int main(int argc, char** argv)
         std::cout << "image height: " << local_image_height << "\n";
         std::cout << "image start: " << local_image_start << "\n";
         std::cout << "image width: " << local_image_width << "\n";
-        work_threads.emplace_back([image_data_reference, keep_working_reference, cam, image_width, image_height, local_image_start, local_image_width, local_image_height, world, max_depth, &frame, threads_supported]()
+        work_threads.emplace_back([&rt_renderer, &rt_context, image_data_reference, &pause, &frame, threads_supported]()
             {
                 uint32_t local_frame = 0;
-                while (*keep_working_reference)
+                while (!pause)
                 {
-                    for (int j = local_image_start; j < local_image_height; j++)
-                    {
-                        for (int i = 0; i < local_image_width; i++)
-                        {
-                            math::color3 pixel_color(0, 0, 0);
-                            auto u = (i + random_double()) / (image_width - 1);
-                            auto v = (j + random_double()) / (image_height - 1);
-                            math::ray r = cam.get_ray(u, v);
-                            pixel_color += jmrtiow::scene::ray_color(r, world, max_depth);
-
-                            // For better readability.
-                            auto& image_data_element = (*image_data_reference)[j * image_width + i];
-                            uint32_t number_of_samples = local_frame + 1;
-
-                            // Pixel data is normalized, be sure to un-normalize it before averaging.
-                            image_data_element = image_data_element * image_data_element;
-
-                            // Add new color and average
-                            // New average = old average * (n-1)/n + new value /n
-                            image_data_element = (image_data_element * (number_of_samples - 1) / number_of_samples + pixel_color / number_of_samples);
-
-                            // image_data_element = (pixel_color / number_of_samples);
-                            // if (local_frame)
-                            //     // TODO: This blending drops off in effectiveness very quickly. Some other blending should be used instead.
-                            //     image_data_element /= (1.0 + (1.0 / (double)number_of_samples));
-
-                            // Normalize the color samples and gamma correct before passing off to pixel data.
-                            image_data_element.r = sqrt(image_data_element.r);
-                            image_data_element.g = sqrt(image_data_element.g);
-                            image_data_element.b = sqrt(image_data_element.b);
-                        }
-
-                        if (!*keep_working_reference)
-                        {
-                            break;
-                        }
-                    }
+                    rt_renderer.render(rt_context, image_data_reference);
                     frame += (1.0f / threads_supported);
                     local_frame++;
                 }
@@ -271,7 +259,7 @@ int main(int argc, char** argv)
         SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
 
         // Convert double to bytes
-        auto image_bytes = jmrtiow::image::convert_to_bytes_rgba(image_data);
+        auto image_bytes = jmrtiow::image::convert_to_bytes_rgba(image_data, image_width * image_height);
 
         // Get pixels of the texture
         char* image_now;
@@ -298,7 +286,7 @@ int main(int argc, char** argv)
     }
 
     // Cleanup
-    keep_working = false;
+    pause = true;
     for (size_t i = 0; i < work_threads.size(); i++)
     {
         work_threads[i].join();

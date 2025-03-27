@@ -235,13 +235,14 @@ namespace jmrtiow::image
         return bytes;
     }
 
-    inline std::vector<color4byte> convert_to_bytes_rgba(const std::vector<math::color3>& image_data)
+    inline std::vector<color4byte> convert_to_bytes_rgba(math::color3* image_data, size_t image_data_size)
     {
         std::vector<color4byte> bytes {};
-        bytes.reserve(image_data.size());
+        bytes.reserve(image_data_size);
 
-        for (auto&& pixel : image_data)
+        for (int i = 0; i < image_data_size; i++)
         {
+            const math::color3& pixel = image_data[i];
             color4byte c;
 
             c.r = static_cast<uint8_t>(256 * clamp(pixel.r, 0.0, 0.999));
