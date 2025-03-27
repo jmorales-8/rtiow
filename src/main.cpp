@@ -77,7 +77,7 @@ int main(int argc, char **argv)
     bool *keep_working_reference = &keep_working;
     float frame = 0;
 
-    uint32_t threads_supported = 2; // std::thread::hardware_concurrency() * 0.75f;
+    uint32_t threads_supported = 7; // std::thread::hardware_concurrency() * 0.75f;
     std::vector<std::thread> work_threads{};
     work_threads.reserve(threads_supported);
     for (size_t i = 1; i < threads_supported + 1; i++)
@@ -109,15 +109,19 @@ int main(int argc, char **argv)
 
                     // For better readability.
                     auto& image_data_element = (*image_data_reference)[j * image_width + i];
+                    uint32_t number_of_samples = local_frame + 1;
 
                     // Pixel data is normalized, be sure to un-normalize it before averaging.
                     image_data_element = image_data_element * image_data_element;
 
                     // Add new color and average
-                    image_data_element += (pixel_color / (local_frame + 1.0));
-                    if (local_frame)
-                        // TODO: This blending drops off in effectiveness very quickly. Some other blending should be used instead.
-                        image_data_element /= (1.0 + (1.0 / (double)(local_frame + 1.0)));
+                    // New average = old average * (n-1)/n + new value /n
+                    image_data_element = (image_data_element * (number_of_samples - 1) / number_of_samples + pixel_color / number_of_samples);
+
+                    // image_data_element = (pixel_color / number_of_samples);
+                    // if (local_frame)
+                    //     // TODO: This blending drops off in effectiveness very quickly. Some other blending should be used instead.
+                    //     image_data_element /= (1.0 + (1.0 / (double)number_of_samples));
 
                     // Normalize the color samples and gamma correct before passing off to pixel data.
                     image_data_element.r = sqrt(image_data_element.r);
