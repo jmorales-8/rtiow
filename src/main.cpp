@@ -87,6 +87,11 @@ int main(int argc, char **argv)
         uint32_t local_image_height = local_image_range * i;
         uint32_t local_image_start = local_image_height - local_image_range;
         uint32_t local_image_width = image_width;
+
+        // On the last thread, we should set the height and range to the height of the image.
+        if (i == threads_supported)
+            local_image_height = image_height;
+
         std::cout << "Info for thread " << i << ":\n";
         std::cout << "image range: " << local_image_range << "\n";
         std::cout << "image height: " << local_image_height << "\n";
