@@ -77,7 +77,7 @@ int main(int argc, char **argv)
     bool *keep_working_reference = &keep_working;
     float frame = 0;
 
-    uint32_t threads_supported = 7; // std::thread::hardware_concurrency() * 0.75f;
+    uint32_t threads_supported = std::thread::hardware_concurrency() * 0.75f;
     std::vector<std::thread> work_threads{};
     work_threads.reserve(threads_supported);
     for (size_t i = 1; i < threads_supported + 1; i++)
@@ -142,11 +142,6 @@ int main(int argc, char **argv)
             frame += (1.0f / threads_supported);
             local_frame++;
         } });
-    }
-
-    for (size_t i = 0; i < work_threads.size(); i++)
-    {
-        std::cout << "Thread " << i << " is joinable? " << work_threads[i].joinable() << '\n';
     }
 
     // Setup SDL
@@ -264,7 +259,8 @@ int main(int argc, char **argv)
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
             ImGui::Text("Application width %.0f, height %.0f", ImGui::GetMainViewport()->Size.x, ImGui::GetMainViewport()->Size.y);
             ImGui::Text("Image stride %d", stride);
-            ImGui::Text("Frame %f, Spp %f", frame, frame);
+            ImGui::Text("Active Threads %d", threads_supported);
+            ImGui::Text("Frame %.2f", frame);
             ImGui::Checkbox("Toggle Demo Window", &show_demo_window);
             ImGui::End();
         }
