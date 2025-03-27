@@ -41,28 +41,28 @@ namespace jmrtiow::image
         };
     };
 
-    std::vector<color3byte> convert_to_bytes(const std::vector<math::color3> &image_data);
+    std::vector<color3byte> convert_to_bytes(const std::vector<math::color3>& image_data);
 
     class image_exporter
     {
     public:
-        bool export_data(std::ostream &out, image_type file_type, const std::vector<math::color3> &image_data, int image_width, int image_height);
-        bool export_data(std::string filepath, image_type file_type, const std::vector<math::color3> &image_data, int image_width, int image_height);
+        bool export_data(std::ostream& out, image_type file_type, const std::vector<math::color3>& image_data, int image_width, int image_height);
+        bool export_data(std::string filepath, image_type file_type, const std::vector<math::color3>& image_data, int image_width, int image_height);
 
     private:
-        bool export_png(std::ostream &out, image_type file_type, const std::vector<math::color3> &image_data, int image_width, int image_height);
-        bool export_jpg(std::ostream &out, image_type file_type, const std::vector<math::color3> &image_data, int image_width, int image_height);
-        bool export_bmp(std::ostream &out, image_type file_type, const std::vector<math::color3> &image_data, int image_width, int image_height);
-        bool export_tga(std::ostream &out, image_type file_type, const std::vector<math::color3> &image_data, int image_width, int image_height);
-        bool export_hdr(std::ostream &out, image_type file_type, const std::vector<math::color3> &image_data, int image_width, int image_height);
-        bool export_ppm(std::ostream &out, image_type file_type, const std::vector<math::color3> &image_data, int image_width, int image_height);
-        bool export_webp(std::ostream &out, image_type file_type, const std::vector<math::color3> &image_data, int image_width, int image_height);
+        bool export_png(std::ostream& out, image_type file_type, const std::vector<math::color3>& image_data, int image_width, int image_height);
+        bool export_jpg(std::ostream& out, image_type file_type, const std::vector<math::color3>& image_data, int image_width, int image_height);
+        bool export_bmp(std::ostream& out, image_type file_type, const std::vector<math::color3>& image_data, int image_width, int image_height);
+        bool export_tga(std::ostream& out, image_type file_type, const std::vector<math::color3>& image_data, int image_width, int image_height);
+        bool export_hdr(std::ostream& out, image_type file_type, const std::vector<math::color3>& image_data, int image_width, int image_height);
+        bool export_ppm(std::ostream& out, image_type file_type, const std::vector<math::color3>& image_data, int image_width, int image_height);
+        bool export_webp(std::ostream& out, image_type file_type, const std::vector<math::color3>& image_data, int image_width, int image_height);
 
         // std::vector<color3byte> convert_to_bytes(const std::vector<math::color3> &image_data);
-        std::vector<color3float> prime_for_hdr(const std::vector<math::color3> &image_data);
+        std::vector<color3float> prime_for_hdr(const std::vector<math::color3>& image_data);
     };
 
-    bool image_exporter::export_data(std::ostream &out, image_type file_type, const std::vector<math::color3> &image_data, int image_width, int image_height)
+    bool image_exporter::export_data(std::ostream& out, image_type file_type, const std::vector<math::color3>& image_data, int image_width, int image_height)
     {
         switch (file_type)
         {
@@ -92,7 +92,7 @@ namespace jmrtiow::image
         }
     }
 
-    bool image_exporter::export_data(std::string filepath, image_type file_type, const std::vector<math::color3> &image_data, int image_width, int image_height)
+    bool image_exporter::export_data(std::string filepath, image_type file_type, const std::vector<math::color3>& image_data, int image_width, int image_height)
     {
         std::ofstream file_stream(filepath, std::ios::trunc);
 
@@ -104,93 +104,93 @@ namespace jmrtiow::image
         return export_data(file_stream, file_type, image_data, image_width, image_height);
     }
 
-    bool image_exporter::export_png(std::ostream &out, image_type file_type, const std::vector<math::color3> &image_data, int image_width, int image_height)
+    bool image_exporter::export_png(std::ostream& out, image_type file_type, const std::vector<math::color3>& image_data, int image_width, int image_height)
     {
         // First we change the doubles to bytes from 0-255.
         auto pixel_data = convert_to_bytes(image_data);
 
-        auto writer = [](void *context, void *data, int size)
-        {
-            auto out = static_cast<std::ostream *>(context);
-            (*out).write(static_cast<char *>(data), size);
-        };
+        auto writer = [](void* context, void* data, int size)
+            {
+                auto out = static_cast<std::ostream*>(context);
+                (*out).write(static_cast<char*>(data), size);
+            };
 
         int return_code = stbi_write_png_to_func(writer, &out, image_width, image_height, 3, pixel_data.data(), 0);
 
         return return_code != 0;
     }
 
-    bool image_exporter::export_jpg(std::ostream &out, image_type file_type, const std::vector<math::color3> &image_data, int image_width, int image_height)
+    bool image_exporter::export_jpg(std::ostream& out, image_type file_type, const std::vector<math::color3>& image_data, int image_width, int image_height)
     {
         // First we change the doubles to bytes from 0-255.
         auto pixel_data = convert_to_bytes(image_data);
 
-        auto writer = [](void *context, void *data, int size)
-        {
-            auto out = static_cast<std::ostream *>(context);
-            (*out).write(static_cast<char *>(data), size);
-        };
+        auto writer = [](void* context, void* data, int size)
+            {
+                auto out = static_cast<std::ostream*>(context);
+                (*out).write(static_cast<char*>(data), size);
+            };
 
         int return_code = stbi_write_jpg_to_func(writer, &out, image_width, image_height, 3, pixel_data.data(), 100);
 
         return return_code != 0;
     }
 
-    bool image_exporter::export_bmp(std::ostream &out, image_type file_type, const std::vector<math::color3> &image_data, int image_width, int image_height)
+    bool image_exporter::export_bmp(std::ostream& out, image_type file_type, const std::vector<math::color3>& image_data, int image_width, int image_height)
     {
         // First we change the doubles to bytes from 0-255.
         auto pixel_data = convert_to_bytes(image_data);
 
-        auto writer = [](void *context, void *data, int size)
-        {
-            auto out = static_cast<std::ostream *>(context);
-            (*out).write(static_cast<char *>(data), size);
-        };
+        auto writer = [](void* context, void* data, int size)
+            {
+                auto out = static_cast<std::ostream*>(context);
+                (*out).write(static_cast<char*>(data), size);
+            };
 
         int return_code = stbi_write_bmp_to_func(writer, &out, image_width, image_height, 3, pixel_data.data());
 
         return return_code != 0;
     }
 
-    bool image_exporter::export_tga(std::ostream &out, image_type file_type, const std::vector<math::color3> &image_data, int image_width, int image_height)
+    bool image_exporter::export_tga(std::ostream& out, image_type file_type, const std::vector<math::color3>& image_data, int image_width, int image_height)
     {
         // First we change the doubles to bytes from 0-255.
         auto pixel_data = convert_to_bytes(image_data);
 
-        auto writer = [](void *context, void *data, int size)
-        {
-            auto out = static_cast<std::ostream *>(context);
-            (*out).write(static_cast<char *>(data), size);
-        };
+        auto writer = [](void* context, void* data, int size)
+            {
+                auto out = static_cast<std::ostream*>(context);
+                (*out).write(static_cast<char*>(data), size);
+            };
 
         int return_code = stbi_write_tga_to_func(writer, &out, image_width, image_height, 3, pixel_data.data());
 
         return return_code != 0;
     }
 
-    bool image_exporter::export_hdr(std::ostream &out, image_type file_type, const std::vector<math::color3> &image_data, int image_width, int image_height)
+    bool image_exporter::export_hdr(std::ostream& out, image_type file_type, const std::vector<math::color3>& image_data, int image_width, int image_height)
     {
         // First we change the doubles to bytes from 0-255.
         auto pixel_data = prime_for_hdr(image_data);
 
-        auto writer = [](void *context, void *data, int size)
-        {
-            auto out = static_cast<std::ostream *>(context);
-            (*out).write(static_cast<char *>(data), size);
-        };
+        auto writer = [](void* context, void* data, int size)
+            {
+                auto out = static_cast<std::ostream*>(context);
+                (*out).write(static_cast<char*>(data), size);
+            };
 
-        int return_code = stbi_write_hdr_to_func(writer, &out, image_width, image_height, 3, reinterpret_cast<float *>(pixel_data.data()));
+        int return_code = stbi_write_hdr_to_func(writer, &out, image_width, image_height, 3, reinterpret_cast<float*>(pixel_data.data()));
 
         return return_code != 0;
     }
 
-    bool image_exporter::export_ppm(std::ostream &out, image_type file_type, const std::vector<math::color3> &image_data, int image_width, int image_height)
+    bool image_exporter::export_ppm(std::ostream& out, image_type file_type, const std::vector<math::color3>& image_data, int image_width, int image_height)
     {
         out << std::format("P3\n{} {}\n255\n", image_width, image_height);
 
         auto pixel_data = convert_to_bytes(image_data);
 
-        for (auto &&pixel : pixel_data)
+        for (auto&& pixel : pixel_data)
         {
             // Write the translated [0,255] value of each color component.
             // Cast to int for the actual data to be inserted into the file instead of utf8 characters.
@@ -202,26 +202,26 @@ namespace jmrtiow::image
         return true;
     }
 
-    bool image_exporter::export_webp(std::ostream &out, image_type file_type, const std::vector<math::color3> &image_data, int image_width, int image_height)
+    bool image_exporter::export_webp(std::ostream& out, image_type file_type, const std::vector<math::color3>& image_data, int image_width, int image_height)
     {
         // First we change the doubles to bytes from 0-255.
         auto pixel_data = convert_to_bytes(image_data);
 
-        uint8_t *output;
-        int size = WebPEncodeLosslessRGB(reinterpret_cast<uint8_t *>(pixel_data.data()), image_width, image_height, image_width * 3, &output);
+        uint8_t* output;
+        int size = WebPEncodeLosslessRGB(reinterpret_cast<uint8_t*>(pixel_data.data()), image_width, image_height, image_width * 3, &output);
 
-        out.write(reinterpret_cast<char *>(output), size);
+        out.write(reinterpret_cast<char*>(output), size);
 
         WebPFree(output);
 
         return size != 0;
     }
 
-    inline std::vector<color3byte> convert_to_bytes(const std::vector<math::color3> &image_data)
+    inline std::vector<color3byte> convert_to_bytes(const std::vector<math::color3>& image_data)
     {
-        std::vector<color3byte> bytes{};
+        std::vector<color3byte> bytes {};
 
-        for (auto &&pixel : image_data)
+        for (auto&& pixel : image_data)
         {
             color3byte c;
 
@@ -235,12 +235,12 @@ namespace jmrtiow::image
         return bytes;
     }
 
-    inline std::vector<color4byte> convert_to_bytes_rgba(const std::vector<math::color3> &image_data)
+    inline std::vector<color4byte> convert_to_bytes_rgba(const std::vector<math::color3>& image_data)
     {
-        std::vector<color4byte> bytes{};
+        std::vector<color4byte> bytes {};
         bytes.reserve(image_data.size());
 
-        for (auto &&pixel : image_data)
+        for (auto&& pixel : image_data)
         {
             color4byte c;
 
@@ -255,12 +255,12 @@ namespace jmrtiow::image
         return bytes;
     }
 
-    inline std::vector<color3float> image_exporter::prime_for_hdr(const std::vector<math::color3> &image_data)
+    inline std::vector<color3float> image_exporter::prime_for_hdr(const std::vector<math::color3>& image_data)
     {
         // Convert double (gamma corrected) pixel data to float (non gamma corrected)
-        std::vector<color3float> floats{};
+        std::vector<color3float> floats {};
 
-        for (auto &&pixel : image_data)
+        for (auto&& pixel : image_data)
         {
             color3float c;
 

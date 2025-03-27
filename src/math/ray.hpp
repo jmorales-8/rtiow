@@ -12,7 +12,7 @@ namespace jmrtiow::math
         vec3 dir;
 
         ray() {}
-        ray(const point3 &origin, const vec3 &direction)
+        ray(const point3& origin, const vec3& direction)
             : orig(origin), dir(direction)
         {
         }

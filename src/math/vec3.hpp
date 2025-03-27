@@ -33,16 +33,16 @@ namespace jmrtiow::math
 
         // Constructors
 
-        vec3() : data{0, 0, 0} {}
-        vec3(double x, double y, double z) : data{x, y, z} {}
+        vec3() : data { 0, 0, 0 } {}
+        vec3(double x, double y, double z) : data { x, y, z } {}
 
         // Operators
 
         vec3 operator-() const { return vec3(-x, -y, -z); }
         double operator[](int i) const { return data[i]; }
-        double &operator[](int i) { return data[i]; }
+        double& operator[](int i) { return data[i]; }
 
-        vec3 &operator+=(const vec3 &v)
+        vec3& operator+=(const vec3& v)
         {
             x += v.x;
             y += v.y;
@@ -50,7 +50,7 @@ namespace jmrtiow::math
             return *this;
         }
 
-        vec3 &operator*=(const double &t)
+        vec3& operator*=(const double& t)
         {
             x *= t;
             y *= t;
@@ -58,7 +58,7 @@ namespace jmrtiow::math
             return *this;
         }
 
-        vec3 operator/=(const double &t)
+        vec3 operator/=(const double& t)
         {
             return *this *= 1 / t;
         }
@@ -100,32 +100,32 @@ namespace jmrtiow::math
     using color3 = vec3; // RGB Color
 
     // Utility Functions
-    inline std::ostream &operator<<(std::ostream &out, const vec3 &v)
+    inline std::ostream& operator<<(std::ostream& out, const vec3& v)
     {
         return out << v.x << ' ' << v.y << ' ' << v.z;
     }
 
-    inline vec3 operator+(const vec3 &u, const vec3 &v)
+    inline vec3 operator+(const vec3& u, const vec3& v)
     {
         return vec3(u.x + v.x, u.y + v.y, u.z + v.z);
     }
 
-    inline vec3 operator-(const vec3 &u, const vec3 &v)
+    inline vec3 operator-(const vec3& u, const vec3& v)
     {
         return vec3(u.x - v.x, u.y - v.y, u.z - v.z);
     }
 
-    inline vec3 operator*(const vec3 &u, const vec3 &v)
+    inline vec3 operator*(const vec3& u, const vec3& v)
     {
         return vec3(u.x * v.x, u.y * v.y, u.z * v.z);
     }
 
-    inline vec3 operator*(double t, const vec3 &v)
+    inline vec3 operator*(double t, const vec3& v)
     {
         return vec3(t * v.x, t * v.y, t * v.z);
     }
 
-    inline vec3 operator*(const vec3 &v, double t)
+    inline vec3 operator*(const vec3& v, double t)
     {
         return t * v;
     }
@@ -135,16 +135,16 @@ namespace jmrtiow::math
         return (1 / t) * v;
     }
 
-    inline double dot(const vec3 &u, const vec3 &v)
+    inline double dot(const vec3& u, const vec3& v)
     {
         return u.x * v.x + u.y * v.y + u.z * v.z;
     }
 
-    inline vec3 cross(const vec3 &u, const vec3 &v)
+    inline vec3 cross(const vec3& u, const vec3& v)
     {
         return vec3(u.y * v.z - u.z * v.y,
-                    u.z * v.x - u.x * v.z,
-                    u.x * v.y - u.y * v.x);
+            u.z * v.x - u.x * v.z,
+            u.x * v.y - u.y * v.x);
     }
 
     inline vec3 unit_vector(vec3 v)
@@ -168,7 +168,7 @@ namespace jmrtiow::math
         return unit_vector(random_in_unit_sphere());
     }
 
-    vec3 random_in_hemisphere(const vec3 &normal)
+    vec3 random_in_hemisphere(const vec3& normal)
     {
         vec3 in_unit_sphere = random_in_unit_sphere();
         if (dot(in_unit_sphere, normal) > 0.0) // In the same hemisphere as the normal
@@ -177,12 +177,12 @@ namespace jmrtiow::math
             return -in_unit_sphere;
     }
 
-    vec3 reflect(const vec3 &v, const vec3 &n)
+    vec3 reflect(const vec3& v, const vec3& n)
     {
         return v - 2 * dot(v, n) * n;
     }
 
-    vec3 refract(const vec3 &uv, const vec3 &n, double etai_over_etat)
+    vec3 refract(const vec3& uv, const vec3& n, double etai_over_etat)
     {
         auto cos_theta = fmin(dot(-uv, n), 1.0);
         vec3 r_out_perp = etai_over_etat * (uv + cos_theta * n);

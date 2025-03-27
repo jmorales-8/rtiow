@@ -19,10 +19,12 @@ public:
     };
 
     not_implemented() : not_implemented("Not implemented", __FUNCTION__)
-    {}
+    {
+    }
 
     not_implemented(const char* function) : not_implemented("Not implemented", function)
-    {}
+    {
+    }
 
     virtual const char* what() const throw()
     {

@@ -11,16 +11,16 @@ namespace jmrtiow::scene
     {
     public:
         virtual bool scatter(
-            const math::ray &r_in, const hit_record &rec, math::color3 &attenuation, math::ray &scattered) const = 0;
+            const math::ray& r_in, const hit_record& rec, math::color3& attenuation, math::ray& scattered) const = 0;
     };
 
     class lambertian : public material
     {
     public:
-        lambertian(const math::color3 &a) : albedo(a) {}
+        lambertian(const math::color3& a) : albedo(a) {}
 
         virtual bool scatter(
-            const math::ray &r_in, const hit_record &rec, math::color3 &attenuation, math::ray &scattered) const override
+            const math::ray& r_in, const hit_record& rec, math::color3& attenuation, math::ray& scattered) const override
         {
             auto scatter_direction = rec.normal + math::random_unit_vector();
 
@@ -40,10 +40,10 @@ namespace jmrtiow::scene
     class metal : public material
     {
     public:
-        metal(const math::color3 &a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}
+        metal(const math::color3& a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}
 
         virtual bool scatter(
-            const math::ray &r_in, const hit_record &rec, math::color3 &attenuation, math::ray &scattered) const override
+            const math::ray& r_in, const hit_record& rec, math::color3& attenuation, math::ray& scattered) const override
         {
             math::vec3 reflected = reflect(unit_vector(r_in.direction()), rec.normal);
             scattered = math::ray(rec.p, reflected + fuzz * math::random_in_unit_sphere());
@@ -62,7 +62,7 @@ namespace jmrtiow::scene
         dielectric(double index_of_refraction) : ir(index_of_refraction) {}
 
         virtual bool scatter(
-            const math::ray &r_in, const hit_record &rec, math::color3 &attenuation, math::ray &scattered) const override
+            const math::ray& r_in, const hit_record& rec, math::color3& attenuation, math::ray& scattered) const override
         {
             attenuation = math::color3(1.0, 1.0, 1.0);
             double refraction_ratio = rec.front_face ? (1.0 / ir) : ir;

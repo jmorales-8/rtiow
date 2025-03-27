@@ -25,9 +25,9 @@
 // External includes
 #include <argparse/argparse.hpp>
 
-void setup_args(int argc, char **argv, argparse::ArgumentParser &argparse);
+void setup_args(int argc, char** argv, argparse::ArgumentParser& argparse);
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     using namespace jmrtiow;
 
@@ -69,16 +69,16 @@ int main(int argc, char **argv)
 
     // Image data as R,G,B math::vec3, no alpha.
 
-    std::vector<math::color3> image_data{};
-    std::vector<math::color3> *image_data_reference = &image_data;
-    image_data.resize(image_height * image_width, {0.0, 0.0, 0.0});
+    std::vector<math::color3> image_data {};
+    std::vector<math::color3>* image_data_reference = &image_data;
+    image_data.resize(image_height * image_width, { 0.0, 0.0, 0.0 });
 
     bool keep_working = true;
-    bool *keep_working_reference = &keep_working;
+    bool* keep_working_reference = &keep_working;
     float frame = 0;
 
     uint32_t threads_supported = std::thread::hardware_concurrency() * 0.75f;
-    std::vector<std::thread> work_threads{};
+    std::vector<std::thread> work_threads {};
     work_threads.reserve(threads_supported);
     for (size_t i = 1; i < threads_supported + 1; i++)
     {
@@ -98,50 +98,51 @@ int main(int argc, char **argv)
         std::cout << "image start: " << local_image_start << "\n";
         std::cout << "image width: " << local_image_width << "\n";
         work_threads.emplace_back([image_data_reference, keep_working_reference, cam, image_width, image_height, local_image_start, local_image_width, local_image_height, world, max_depth, &frame, threads_supported]()
-                                  {
-        uint32_t local_frame = 0;
-        while (*keep_working_reference)
-        {
-            for (int j = local_image_start; j < local_image_height; j++)
             {
-                for (int i = 0; i < local_image_width; i++)
+                uint32_t local_frame = 0;
+                while (*keep_working_reference)
                 {
-                    math::color3 pixel_color(0, 0, 0);
-                    auto u = (i + random_double()) / (image_width - 1);
-                    auto v = (j + random_double()) / (image_height - 1);
-                    math::ray r = cam.get_ray(u, v);
-                    pixel_color += jmrtiow::scene::ray_color(r, world, max_depth);
+                    for (int j = local_image_start; j < local_image_height; j++)
+                    {
+                        for (int i = 0; i < local_image_width; i++)
+                        {
+                            math::color3 pixel_color(0, 0, 0);
+                            auto u = (i + random_double()) / (image_width - 1);
+                            auto v = (j + random_double()) / (image_height - 1);
+                            math::ray r = cam.get_ray(u, v);
+                            pixel_color += jmrtiow::scene::ray_color(r, world, max_depth);
 
-                    // For better readability.
-                    auto& image_data_element = (*image_data_reference)[j * image_width + i];
-                    uint32_t number_of_samples = local_frame + 1;
+                            // For better readability.
+                            auto& image_data_element = (*image_data_reference)[j * image_width + i];
+                            uint32_t number_of_samples = local_frame + 1;
 
-                    // Pixel data is normalized, be sure to un-normalize it before averaging.
-                    image_data_element = image_data_element * image_data_element;
+                            // Pixel data is normalized, be sure to un-normalize it before averaging.
+                            image_data_element = image_data_element * image_data_element;
 
-                    // Add new color and average
-                    // New average = old average * (n-1)/n + new value /n
-                    image_data_element = (image_data_element * (number_of_samples - 1) / number_of_samples + pixel_color / number_of_samples);
+                            // Add new color and average
+                            // New average = old average * (n-1)/n + new value /n
+                            image_data_element = (image_data_element * (number_of_samples - 1) / number_of_samples + pixel_color / number_of_samples);
 
-                    // image_data_element = (pixel_color / number_of_samples);
-                    // if (local_frame)
-                    //     // TODO: This blending drops off in effectiveness very quickly. Some other blending should be used instead.
-                    //     image_data_element /= (1.0 + (1.0 / (double)number_of_samples));
+                            // image_data_element = (pixel_color / number_of_samples);
+                            // if (local_frame)
+                            //     // TODO: This blending drops off in effectiveness very quickly. Some other blending should be used instead.
+                            //     image_data_element /= (1.0 + (1.0 / (double)number_of_samples));
 
-                    // Normalize the color samples and gamma correct before passing off to pixel data.
-                    image_data_element.r = sqrt(image_data_element.r);
-                    image_data_element.g = sqrt(image_data_element.g);
-                    image_data_element.b = sqrt(image_data_element.b);
+                            // Normalize the color samples and gamma correct before passing off to pixel data.
+                            image_data_element.r = sqrt(image_data_element.r);
+                            image_data_element.g = sqrt(image_data_element.g);
+                            image_data_element.b = sqrt(image_data_element.b);
+                        }
+
+                        if (!*keep_working_reference)
+                        {
+                            break;
+                        }
+                    }
+                    frame += (1.0f / threads_supported);
+                    local_frame++;
                 }
-
-                if (!*keep_working_reference)
-                {
-                    break;
-                }
-            }
-            frame += (1.0f / threads_supported);
-            local_frame++;
-        } });
+            });
     }
 
     // Setup SDL
@@ -158,13 +159,13 @@ int main(int argc, char **argv)
 
     // Create window with SDL_Renderer graphics context
     SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-    SDL_Window *window = SDL_CreateWindow("Dear ImGui SDL2+SDL_Renderer example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, image_width, image_height, window_flags);
+    SDL_Window* window = SDL_CreateWindow("Dear ImGui SDL2+SDL_Renderer example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, image_width, image_height, window_flags);
     if (window == nullptr)
     {
         printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
         return -1;
     }
-    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
     if (renderer == nullptr)
     {
         SDL_Log("Error creating SDL_Renderer!");
@@ -178,7 +179,7 @@ int main(int argc, char **argv)
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO &io = ImGui::GetIO();
+    ImGuiIO& io = ImGui::GetIO();
     (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
@@ -212,7 +213,7 @@ int main(int argc, char **argv)
     int stride = 0;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    SDL_Texture *render_surface = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, image_width, image_height);
+    SDL_Texture* render_surface = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, image_width, image_height);
 
     std::cout << "Image width " << image_width << " height " << image_height << '\n';
 
@@ -273,8 +274,8 @@ int main(int argc, char **argv)
         auto image_bytes = jmrtiow::image::convert_to_bytes_rgba(image_data);
 
         // Get pixels of the texture
-        char *image_now;
-        SDL_LockTexture(render_surface, NULL, (void **)&image_now, &stride);
+        char* image_now;
+        SDL_LockTexture(render_surface, NULL, (void**)&image_now, &stride);
 
         // int w, h;
         // unsigned int format;
@@ -314,22 +315,22 @@ int main(int argc, char **argv)
     return 0;
 }
 
-void setup_args(int argc, char **argv, argparse::ArgumentParser &argparser)
+void setup_args(int argc, char** argv, argparse::ArgumentParser& argparser)
 {
     argparser.add_argument("--image-type", "-t")
-        .default_value(std::string{"png"})
+        .default_value(std::string { "png" })
         .choices("png", "jpg", "jpeg", "bmp", "tga", "hdr", "ppm", "webp")
         .nargs(1)
         .help("The type of image to output [choices: png, jpg, jpeg, bmp, tga, hdr, ppm, webp]")
         .metavar("TYPE");
 
     argparser.add_argument("--filepath", "-f")
-        .default_value(std::string{"img.png"})
+        .default_value(std::string { "img.png" })
         .help("The file location to output to")
         .metavar("PATH");
 
     argparser.add_argument("--scene", "-s")
-        .default_value(std::string{"random"})
+        .default_value(std::string { "random" })
         .choices("random", "demo", "demo2")
         .help("The scene to render")
         .metavar("SCENE");
@@ -338,7 +339,7 @@ void setup_args(int argc, char **argv, argparse::ArgumentParser &argparser)
     {
         argparser.parse_args(argc, argv);
     }
-    catch (const std::exception &err)
+    catch (const std::exception& err)
     {
         std::cerr << err.what() << std::endl;
         std::cerr << argparser;

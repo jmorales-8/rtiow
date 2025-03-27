@@ -13,7 +13,7 @@ namespace jmrtiow::scene
         sphere(math::point3 cen, double r, shared_ptr<material> m) : center(cen), radius(r), mat_ptr(m) {};
 
         virtual bool hit(
-            const math::ray &r, double t_min, double t_max, hit_record &rec) const override;
+            const math::ray& r, double t_min, double t_max, hit_record& rec) const override;
 
     public:
         math::point3 center;
@@ -21,7 +21,7 @@ namespace jmrtiow::scene
         shared_ptr<material> mat_ptr;
     };
 
-    bool sphere::hit(const math::ray &r, double t_min, double t_max, hit_record &rec) const
+    bool sphere::hit(const math::ray& r, double t_min, double t_max, hit_record& rec) const
     {
         math::vec3 oc = r.origin() - center;
         auto a = r.direction().length_squared();
@@ -51,7 +51,7 @@ namespace jmrtiow::scene
         return true;
     }
 
-    double hit_sphere(const math::point3 &center, double radius, const math::ray &r)
+    double hit_sphere(const math::point3& center, double radius, const math::ray& r)
     {
         math::vec3 oc = r.origin() - center;
         auto a = r.direction().length_squared();
