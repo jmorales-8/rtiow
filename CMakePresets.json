@@ -21,13 +21,25 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug"
             }
+        },
+        {
+            "name": "release-ninja-vcpkg",
+            "inherits": "ninja-vcpkg",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
         }
     ],
     "buildPresets": [
         {
-            "name": "ninja",
+            "name": "debug-ninja-vcpkg",
             "inheritConfigureEnvironment": true,
             "configurePreset": "debug-ninja-vcpkg"
+        },
+        {
+            "name": "release-ninja-vcpkg",
+            "inheritConfigureEnvironment": true,
+            "configurePreset": "release-ninja-vcpkg"
         }
     ]
 }

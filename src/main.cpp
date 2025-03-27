@@ -75,31 +75,54 @@ int main(int argc, char **argv)
 
     bool keep_working = true;
     bool *keep_working_reference = &keep_working;
+    float frame = 0;
 
-    std::thread work_thread([image_data_reference, keep_working_reference, cam, image_width, image_height, world, max_depth]()
-                            {
+    uint32_t threads_supported = 2; // std::thread::hardware_concurrency() * 0.75f;
+    std::vector<std::thread> work_threads{};
+    work_threads.reserve(threads_supported);
+    for (size_t i = 1; i < threads_supported + 1; i++)
+    {
+        // Should change this from a lambda to its own function for clarity.
+        uint32_t local_image_range = image_height / threads_supported;
+        uint32_t local_image_height = local_image_range * i;
+        uint32_t local_image_start = local_image_height - local_image_range;
+        uint32_t local_image_width = image_width;
+        std::cout << "Info for thread " << i << ":\n";
+        std::cout << "image range: " << local_image_range << "\n";
+        std::cout << "image height: " << local_image_height << "\n";
+        std::cout << "image start: " << local_image_start << "\n";
+        std::cout << "image width: " << local_image_width << "\n";
+        work_threads.emplace_back([image_data_reference, keep_working_reference, cam, image_width, image_height, local_image_start, local_image_width, local_image_height, world, max_depth, &frame, threads_supported]()
+                                  {
+        uint32_t local_frame = 0;
         while (*keep_working_reference)
         {
-            for (int j = image_height - 1; j >= 0; j--)
+            for (int j = local_image_start; j < local_image_height; j++)
             {
-                for (int i = 0; i < image_width; i++)
+                for (int i = 0; i < local_image_width; i++)
                 {
                     math::color3 pixel_color(0, 0, 0);
-                    for (int s = 0; s < samples_per_pixel; ++s)
-                    {
-                        auto u = (i + random_double()) / (image_width - 1);
-                        auto v = (j + random_double()) / (image_height - 1);
-                        math::ray r = cam.get_ray(u, v);
-                        pixel_color += jmrtiow::scene::ray_color(r, world, max_depth);
-                    }
+                    auto u = (i + random_double()) / (image_width - 1);
+                    auto v = (j + random_double()) / (image_height - 1);
+                    math::ray r = cam.get_ray(u, v);
+                    pixel_color += jmrtiow::scene::ray_color(r, world, max_depth);
+
+                    // For better readability.
+                    auto& image_data_element = (*image_data_reference)[j * image_width + i];
+
+                    // Pixel data is normalized, be sure to un-normalize it before averaging.
+                    image_data_element = image_data_element * image_data_element;
+
+                    // Add new color and average
+                    image_data_element += (pixel_color / (local_frame + 1.0));
+                    if (local_frame)
+                        // TODO: This blending drops off in effectiveness very quickly. Some other blending should be used instead.
+                        image_data_element /= (1.0 + (1.0 / (double)(local_frame + 1.0)));
 
                     // Normalize the color samples and gamma correct before passing off to pixel data.
-                    pixel_color *= (1.0f / samples_per_pixel);
-                    pixel_color.r = sqrt(pixel_color.r);
-                    pixel_color.g = sqrt(pixel_color.g);
-                    pixel_color.b = sqrt(pixel_color.b);
-
-                    (*image_data_reference)[j * image_width + i] = pixel_color;
+                    image_data_element.r = sqrt(image_data_element.r);
+                    image_data_element.g = sqrt(image_data_element.g);
+                    image_data_element.b = sqrt(image_data_element.b);
                 }
 
                 if (!*keep_working_reference)
@@ -107,7 +130,15 @@ int main(int argc, char **argv)
                     break;
                 }
             }
+            frame += (1.0f / threads_supported);
+            local_frame++;
         } });
+    }
+
+    for (size_t i = 0; i < work_threads.size(); i++)
+    {
+        std::cout << "Thread " << i << " is joinable? " << work_threads[i].joinable() << '\n';
+    }
 
     // Setup SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
@@ -173,8 +204,7 @@ int main(int argc, char **argv)
     // IM_ASSERT(font != nullptr);
 
     // Our state
-    bool show_demo_window = true;
-    bool show_another_window = false;
+    bool show_demo_window = false;
     int stride = 0;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
@@ -225,16 +255,8 @@ int main(int argc, char **argv)
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
             ImGui::Text("Application width %.0f, height %.0f", ImGui::GetMainViewport()->Size.x, ImGui::GetMainViewport()->Size.y);
             ImGui::Text("Image stride %d", stride);
-            ImGui::End();
-        }
-
-        // 3. Show another simple window.
-        if (show_another_window)
-        {
-            ImGui::Begin("Another Window", &show_another_window); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-            ImGui::Text("Hello from another window!");
-            if (ImGui::Button("Close Me"))
-                show_another_window = false;
+            ImGui::Text("Frame %f, Spp %f", frame, frame);
+            ImGui::Checkbox("Toggle Demo Window", &show_demo_window);
             ImGui::End();
         }
 
@@ -271,7 +293,10 @@ int main(int argc, char **argv)
 
     // Cleanup
     keep_working = false;
-    work_thread.join();
+    for (size_t i = 0; i < work_threads.size(); i++)
+    {
+        work_threads[i].join();
+    }
 
     ImGui_ImplSDLRenderer2_Shutdown();
     ImGui_ImplSDL2_Shutdown();

@@ -238,6 +238,7 @@ namespace jmrtiow::image
     inline std::vector<color4byte> convert_to_bytes_rgba(const std::vector<math::color3> &image_data)
     {
         std::vector<color4byte> bytes{};
+        bytes.reserve(image_data.size());
 
         for (auto &&pixel : image_data)
         {
