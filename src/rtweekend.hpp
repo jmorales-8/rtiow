@@ -51,6 +51,7 @@ inline double clamp(double x, double min, double max)
 
 #include "math/ray.hpp"
 #include "math/vec3.hpp"
+#include "math/interval.hpp"
 #include "scene/hittable.hpp"
 
 #endif // RTWEEKEND_HPP

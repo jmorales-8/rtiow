@@ -1,7 +1,7 @@
 #ifndef SCENE_HITTABLE_HPP
 #define SCENE_HITTABLE_HPP
 
-#include "../math/ray.hpp"
+#include "../rtweekend.hpp"
 // #include "material.hpp"
 
 namespace jmrtiow::scene
@@ -26,7 +26,7 @@ namespace jmrtiow::scene
     class hittable
     {
     public:
-        virtual bool hit(const math::ray& r, double t_min, double t_max, hit_record& rec) const = 0;
+        virtual bool hit(const math::ray& r, math::interval ray_t, hit_record& rec) const = 0;
     };
 }
 
