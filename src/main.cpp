@@ -85,50 +85,58 @@ int main(int argc, char** argv)
     // Create rt rendering context and renderer.
     // TODO: Enable switching of multiple renderers.
     graphics::renderer_context rt_context {
-        .width = image_width,
-        .height = image_height,
         .camera = &cam,
         .scene = &world,
         .max_depth = max_depth,
         .samples_per_pixel = samples_per_pixel,
         .pause = &pause,
-        .blend_callback = [frame](const math::color3& a, const math::color3& b)->math::color3
+        .blend_callback = [](const math::color3& a, const math::color3& b, const uint32_t& iteration)->math::color3
         {
-            uint32_t n = frame + 1;
+            uint32_t n = iteration + 1;
             return a * (n - 1) / n + b / n;
         },
     };
 
     graphics::cpu_renderer rt_renderer {};
 
-    uint32_t threads_supported = 1;//std::thread::hardware_concurrency() * 0.75f;
+    uint32_t threads_supported = std::thread::hardware_concurrency() * 0.75f;
     std::vector<std::thread> work_threads {};
     work_threads.reserve(threads_supported);
     for (size_t i = 1; i < threads_supported + 1; i++)
     {
         // Should change this from a lambda to its own function for clarity.
-        uint32_t local_image_range = image_height / threads_supported;
-        uint32_t local_image_height = local_image_range * i;
-        uint32_t local_image_start = local_image_height - local_image_range;
-        uint32_t local_image_width = image_width;
+        uint32_t local_image_range = image_width / threads_supported;
+        uint32_t local_image_height = image_height;
+        uint32_t local_image_width = local_image_range * i;
+        uint32_t local_image_start = local_image_width - local_image_range;
 
         // On the last thread, we should set the height and range to the height of the image.
         if (i == threads_supported)
-            local_image_height = image_height;
+            local_image_width = image_width;
 
         std::cout << "Info for thread " << i << ":\n";
         std::cout << "image range: " << local_image_range << "\n";
         std::cout << "image height: " << local_image_height << "\n";
         std::cout << "image start: " << local_image_start << "\n";
         std::cout << "image width: " << local_image_width << "\n";
-        work_threads.emplace_back([&rt_renderer, &rt_context, image_data_reference, &pause, &frame, threads_supported]()
+        work_threads.emplace_back([&rt_renderer, &rt_context, image_data_reference, &pause, &frame, threads_supported, image_height, image_width, local_image_width, local_image_height, local_image_start, local_image_range]()
             {
-                uint32_t local_frame = 0;
+                graphics::view_context local_view_context {
+                    .data = image_data_reference,
+                    .iteration = 0,
+                    .data_height = image_height,
+                    .data_width = image_width,
+                    .x = local_image_start,
+                    .y = 0,
+                    .height = local_image_height,
+                    .width = local_image_range
+                };
+
                 while (!pause)
                 {
-                    rt_renderer.render(rt_context, image_data_reference);
+                    rt_renderer.render(rt_context, local_view_context);
                     frame += (1.0f / threads_supported);
-                    local_frame++;
+                    local_view_context.iteration++;
                 }
             });
     }
